@@ -1,0 +1,39 @@
+{
+    "name": "dv0vd/laravel-simple-cache",
+    "description": "Simple trait for cache handling with tags support in Laravel",
+    "keywords": [
+        "laravel",
+        "cache",
+        "trait",
+        "redis",
+        "tagged-cache"
+    ],
+    "type": "library",
+    "version": "1.0.0",
+    "homepage": "https://github.com/dv0vd/laravel-simple-cache",
+    "readme": "README.md",
+    "license": "MIT",
+
+    "require": {
+        "php": ">=8.1",
+        "illuminate/support": ">=8.0",
+        "illuminate/cache": ">=8.0"
+    },
+
+    "autoload": {
+        "psr-4": {
+            "Dv0vD\\LaravelSimpleCache\\": "src/"
+        }
+    },
+
+    "authors": [
+        {
+            "name": "Viacheslav Davydov",
+            "email": "dv0vd@dv0vd.xyz",
+            "homepage": "https://dv0vd.dev"
+        }
+    ],
+
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
