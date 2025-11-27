@@ -1,41 +1,80 @@
-# @dv0vd/vuepress-auto-description
+# Laravel Simple Cache Trait
 
-Automatically generate meta description for VuePress 2 pages from your Markdown content.
+A lightweight Laravel trait that simplifies working with cache keys and tagged cache storage.
+It automatically generates stable hashed cache keys, handles nested arrays, sorts key data, and supports cache tags across all Laravel versions starting from **8.x**.
 
 ## Features
 
-- Auto-generate meta description from first paragraph(s)
-- Paragraph-safe trimming to a configurable maximum length
+- Automatic cache key generation using SHA-256
+- Deterministic sorting of array keys before hashing
+- Tagged cache support (if the store supports it)
+- Graceful fallback when caching fails
+- Easy cache flushing for specific tag groups
+- Works on Laravel **8+**
 
 ## Installation
 
 ```bash
-npm install @dv0vd/vuepress-auto-description
+composer require dv0vd/laravel-simple-cache
 ```
-
-## How It Works
-1. **Check existing description**: If `page.frontmatter.description` is already set, the plugin does nothing and preserves the existing description.
-2. **Extract paragraphs**: The plugin parses the rendered HTML (`page.contentRendered`) and extracts all `<p>` elements.
-3. **Plain text**: HTML tags are removed, and whitespace is normalized. Empty paragraphs are ignored.
-4. **Trim to max length**:
-    - The plugin does not cut text in the middle of a word.
-    - Paragraphs are added sequentially until the total length reaches `maxDescriptionLength`.
-    - Because whole paragraphs are added, the final length **may slightly exceed the limit** to avoid cutting words in half.
-5. **Save description**: The final text is assigned to `page.frontmatter.description`.
 
 ## Usage
-```js
-import autoDescriptionPlugin from '@dv0vd/vuepress-auto-description';
+```php
+use Dv0vD\LaravelSimpleCache\CacheTrait;
 
-export default {
-  plugins: [
-    autoDescriptionPlugin(160),
-  ],
-};
+class ProductRepository
+{
+    use CacheTrait;
+
+    public function get(int $id)
+    {
+        return $this->rememberCache(
+            callback: fn () => Product::find($id),
+            keys: ['id' => $id],
+        );
+    }
+}
 ```
 
-## Options
+Tag Constants (optional):
+```php
+class ProductRepository
+{
+    use CacheTrait;
 
-| Option                    | Type   | Default | Description                                                                                           |
-| ------------------------- | ------ | ------- | ----------------------------------------------------------------------------------------------------- |
-| `maxDescriptionLength`    | number | 150     | Maximum number of characters for the description                                                    |
+    private const CACHE_MAIN_TAG = 'products';
+    private const CACHE_TAGS = ['repository', 'models'];
+
+    public function get(int $id)
+    {
+        return $this->rememberCache(
+            callback: fn () => Product::find($id),
+            keys: ['id' => $id],
+        );
+    }
+}
+```
+
+Clearing cache:
+```php
+$this->clearCache();
+```
+```php
+$this->clearCache(['products']);
+```
+
+## Available Methods
+
+### rememberCache(callable $callback, array $keys = [], array $tags = [], ?int $ttl = null): mixed
+Stores or retrieves a value from cache:
+- Automatically generates a cache key based on the calling class, method, and the `$keys` array (sorted & hashed).
+- Uses tags if the cache driver supports them.
+- Logs and silently falls back to the callback if caching fails.
+- `$ttl` (in seconds) is optional. Defaults to `cache.ttl` from your config.
+
+### clearCache(array $tags = []): void
+Flushes all cache entries for the provided tags or default tags.
+- By default, tags are taken from the constants `CACHE_MAIN_TAG` and `CACHE_TAGS`.
+- If you pass tags as a parameter, they will override the default constants.
+- Only cache entries with tags are cleared.
+- If no tags are found, the method does nothing to avoid accidental data loss.
