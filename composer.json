@@ -3,10 +3,15 @@
     "description": "Simple trait for cache handling with tags support in Laravel",
     "keywords": [
         "laravel",
+        "laravel-cache",
         "cache",
         "trait",
         "redis",
-        "tagged-cache"
+        "tagged-cache",
+        "simple-cache",
+        "cache-helper",
+        "cache-utility",
+        "php"
     ],
     "type": "library",
     "version": "1.0.0",
