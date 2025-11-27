@@ -21,7 +21,9 @@ trait CacheTrait
                 $tags = $this->getTags();
             }
 
-            Cache::tags($tags)->flush();
+            if (count($tags) > 0) {
+                Cache::tags($tags)->flush();
+            }
         }
     }
 
